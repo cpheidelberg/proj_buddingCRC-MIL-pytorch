@@ -76,21 +76,22 @@ for clas in classes:
 
         
 for tile in tiles:
-    tileIDX = os.path.basename(tile).split('_')[0]
-    Case = dfCleared[dfCleared['UNum'].str.endswith(tileIDX)]
-    normalizedTile = os.path.join(dataSource,os.path.basename(tile).replace('.tif', '_fake.png'))   #
-    if len(Case) == 1:
+    tileIDX = os.path.basename(tile).split('_')[0]  #first we need to adapt the filename to the normalized tile
+    Case = dfCleared[dfCleared['UNum'].str.endswith(tileIDX)]   #match the tile with the patient
+    normalizedTile = os.path.join(dataSource,os.path.basename(tile).replace('.tif', '_fake.png'))   
+    if len(Case) == 1:  #move tile to respecting class folder
         NodalStat = Case.to_numpy()[0, 1]
         if not os.path.isfile(os.path.join(root, str(NodalStat), os.path.basename(normalizedTile))):
             os.rename(normalizedTile, os.path.join(root, str(NodalStat), os.path.basename(normalizedTile)))
         usableTiles.append(normalizedTile)
-    elif len(Case) == 0:
+    elif len(Case) == 0:    #if no case exists
         notListed.append(normalizedTile)
-    else:
+    else:   #we can't work on multiple cases with one ID
         multiListed.append(normalizedTile)
+        
     print("Sorted: %d, Notlisted: %d, Multilisted: %d, Remaining: %d " % (
     len(usableTiles), len(notListed), len(multiListed),
-    len(tiles) - (len(usableTiles) + len(notListed) + len(multiListed))), end="\r", flush=True)
+    len(tiles) - (len(usableTiles) + len(notListed) + len(multiListed))), end="\r", flush=True) #some output to know how long to drink coffee
 print('')
 
 #%% get distribution of used cases - IDs
@@ -110,7 +111,6 @@ for file in multiListed:
 MultiCases = np.unique(np.asarray(multiListedIDS))
 
 #%% save Distribution to txt
-
 date = time.strftime("%Y-%m-%d")
 
 print(f'Anzahl der verwendbaren Fälle: {len(cases)}')
@@ -130,12 +130,12 @@ with open(f'{date}_{classification}_normalized_usableIDs.txt', 'w') as f:
 phases={}
 nodals = classes
 for n in nodals:
-    files = glob.glob(os.path.join(root, str(n),'*png'))
+    files = glob.glob(os.path.join(root, str(n),'*png'))    #split files into sets
     phases["train"],phases["val"] = model_selection.train_test_split(files, test_size = test_set_size + val_set_size, train_size = 1 - test_set_size - val_set_size )
     phases['val'], phases['test'] = model_selection.train_test_split(phases['val'], test_size = test_set_size/(test_set_size + val_set_size), train_size = val_set_size/(test_set_size + val_set_size))
     print('Class: ', n, ',Tiles: ', len(files))
 
-    for phase in phases.keys():
+    for phase in phases.keys(): #make folders and move files
         if not os.path.exists(os.path.join(root,phase,str(n))):
             os.mkdir(os.path.join(root,phase,str(n)))
         print('')
@@ -143,10 +143,10 @@ for n in nodals:
         for counter, tile in enumerate(phases[phase]):
             print('File ', counter, '/', len(phases[phase]), end="\r", flush=True)
             os.rename(tile, os.path.join(root, phase, str(n), os.path.basename(tile)))
+        
         #remove empty folders - they lead to wrong size of datasets
         folders = list(os.walk(os.path.join(root,phase)))[1:]
-        for folder in folders:
-            # folder example: ('FOLDER/3', [], ['file'])
+        for folder in folders:  
             if not folder[2]:
                 os.rmdir(folder[0])
     print('')
