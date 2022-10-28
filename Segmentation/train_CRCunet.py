@@ -1,12 +1,3 @@
-#!/usr/bin/env python
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[ ]:
-
-
-# v2
-# 28/11/2018
 #%% imports
 from __future__ import print_function
 import torch
@@ -25,9 +16,6 @@ import cv2
 
 import numpy as np
 import sys, glob
-
-#from tensorboardX import SummaryWriter
-
 import scipy.ndimage
 
 import time
@@ -42,7 +30,7 @@ from sklearn.metrics import jaccard_score
 from sklearn.metrics import f1_score
 from datetime import datetime
 
-dataname="CRC1kFinal"
+dataname="CRC"
 ignore_index = 255  # Unet has the possibility of masking out pixels in the output image, we can specify the index value here (though not used)
 gpuid = 0
 
