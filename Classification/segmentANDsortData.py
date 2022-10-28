@@ -1,10 +1,6 @@
-# v2
-# 7/11/2018
+# using the pretrained UNet this script produces a segmentation mask, calculates the area marked as tumor and saves the filename to the according list
 
-# python make_output_unet_cmd.py '/*.tif' -o '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/Daniel/GroundTruth/exported_tiles_0.0_1000_true_true_true_true_true/TestSet/Output' -m 'CRC1000_unet_best_model.pth' -b '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/Daniel/GroundTruth/exported_tiles_0.0_1000_true_true_true_true_true/TestSet' -f
-# Terminal line for making output
-
-
+#%% imports
 import os
 import glob
 import numpy as np
@@ -15,20 +11,15 @@ from PIL import Image
 
 from unet import UNet
 from varname import nameof
-a, b, c, d = 0,0,0,0
-palette = []
-with open("Qu022-Palette.txt", "r") as f:
-    for line in f:
-        palette.append(int(line.strip()))
 
 
-# -----helper function to split data into batches
+#%% -----helper function to split data into batches
 
 def divide_batch(l, n):
     for i in range(0, l.shape[0], n):
         yield l[i:i + n, ::]
 
-    # ----- parse command line arguments
+#%% ----- parse command line arguments
 
 class struct():
     pass
@@ -37,13 +28,13 @@ args = struct() # define a struct-element
 args.input_pattern = '*.tif'
 patch_size = 256
 batch_size = 16
-OUTPUT_DIR = "/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/"
+OUTPUT_DIR = "/home/usr/UNetOut"
 # args.resize = 1
 args.croppedsize = (512,512)
-args.model = "/home/dr1/PycharmProjects/pytorchdigitalpathology_bitbucket/segmentation_epistroma_unet/FinalDataRuns/21-03-02_DiceLoss80E/2021_03_02-CRC1kFinal-unet_best_model.pth"
+args.model = "/home/usr/UNet.pth"  #pretrained UNet
 args.gpuid = 0
 args.force = True
-args.basepath = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/'
+args.basepath = '/home/usr/data'
 stride_size = patch_size
 
 #%% ----- load network
@@ -68,14 +59,14 @@ Files = []  #glob.glob(os.path.join(datapath,'*','*.svs'))
 with open("/home/dr1/PycharmProjects/wsi-tools/wsi-tools/Filelist.txt", "r") as f:
    for line in f:
        Files.append(line.rstrip('\n'))
-Files.remove('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Box IV Kolon 20x/76005_TV_M_Kolon_HE.svs')
-Files.remove('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Box IX Kolon 20x/20921_TV_TEVBUL1B_K_Kolon_HE.svs')
 
+#%% define output categories
 centralTumor = []  # list of tiles containing >= 95% Tumor
 boarderTumor = []  # list of tiles with 50% - 75% Tumor
 betweenTumor = []  # tiles with 75%-95% Tumor
 removeFile = []
 
+#%% generate segmented output
 for F in Files:
     files = glob.glob(os.path.join(F.replace('.svs', '*'), args.input_pattern))
 
@@ -83,7 +74,7 @@ for F in Files:
     for ii, fname in enumerate(files):
 
         #fname = fname.strip()  # create Output filename
-        newfname_class = fname.replace('.tif', '_output.png')   #"%s/%s_output.png" % (OUTPUT_DIR, os.path.basename(fname)[0:os.path.basename(fname).rfind(".")])
+        newfname_class = fname.replace('.tif', '_output.png') 
 
         print(f"working on file: {os.path.basename(os.path.basename(F))}, Tile {ii} of {len(files)}")
 
@@ -157,48 +148,18 @@ for F in Files:
 
         if  tumorAmount >= highThresh:
             centralTumor.append(fname)
-            # while a < 5:
-            #     print(tumorAmount)
-            #     mask = Image.fromarray(Arr, mode='P')
-            #     mask.putpalette(palette)
-            #     mask.show()
-            #     img = Image.open(fname)
-            #     img.show()
-            #     a += 1
+
         elif  midThresh < tumorAmount < highThresh:
             betweenTumor.append(fname)
-            # while b < 5:
-            #     print(sum(Arr))
-            #     mask = Image.fromarray(Arr, mode='P')
-            #     mask.putpalette(palette)
-            #     mask.show()
-            #     img = Image.open(fname)
-            #     img.show()
-            #     b += 1
+
         elif  lowThresh <= tumorAmount <= midThresh:
             boarderTumor.append(fname)
-            # while c < 5:
-            #     print(sum(Arr))
-            #     mask = Image.fromarray(Arr, mode='P')
-            #     mask.putpalette(palette)
-            #     mask.show()
-            #     img = Image.open(fname)
-            #     img.show()
-            #     c += 1
+
         else:
             removeFile.append(fname)
             os.remove(fname)
-            # while d < 5:
-            #     print(sum(Arr))
-            #     mask = Image.fromarray(Arr, mode='P')
-            #     mask.putpalette(palette)
-            #     mask.show()
-            #     img = Image.open(fname)
-            #     img.show()
-            #     d += 1
 
 
-        #mask.save(newfname_class)
 
     lists = [centralTumor, boarderTumor, betweenTumor, removeFile]
     for list in lists:
