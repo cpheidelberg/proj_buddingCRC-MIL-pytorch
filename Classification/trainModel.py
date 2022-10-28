@@ -18,11 +18,12 @@ from visFunctions import imshow
 import glob
 
 
+#%% setup
+root = '/home/dr1/GrazKollektiv/TumorBoarder'   #where the tiles are stored
+saveModelPth = '/home/dr1/PycharmProjects/GraMa/trainedModels'  #where to store the model and statistics
+classification = 'Nodals2Cases' #what to classify
 
-root = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/TumorCases'
-saveModelPth = '/home/dr1/PycharmProjects/GraMa/trainedModels'
-classification = 'Nodals2Cases'
-
+#%% prepare parameters
 if 'Nodal' in classification:
     classes = np.arange(0, 3, 1)
 elif 'Budding' in classification:
@@ -32,46 +33,12 @@ elif 'Progress' in classification:
 else:
     raise ValueError('Classification must contain Nodal or Budding!')
 
-#%% if trainint for cases, get case names
-classes = []
-with open('Nodals2Case_normalized_cases.txt', 'r') as file:
-    for line in file:
-        classes.append(int(line))
-classes = np.asarray(classes)
-
+#%% get the files
 folders = list(os.walk(os.path.join(root, 'train')))[0][1]
 classes = np.asarray(list(map(int, folders)))
 
-#%% load and prepare the dataset
-# Data augmentation and normalization for training
-# Just normalization for validation
-# data_transforms = {
-#     'train': transforms.Compose([
-#         transforms.Resize([224,224]),
-#         transforms.RandomHorizontalFlip(),
-#         transforms.RandomVerticalFlip(),
-#         transforms.RandomRotation(180),
-#         transforms.ToTensor(),
-#         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-#     ]),
-#     'val': transforms.Compose([
-#         transforms.Resize([224,224]),
-#         transforms.ToTensor(),
-#         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-#     ]),
-# }
-#
-# data_dir = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/TumorBoarder'
-# image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-#                                           data_transforms[x])
-#                   for x in ['train', 'val']}
-# dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=16,
-#                                              shuffle=True, num_workers=4)
-#               for x in ['train', 'val']}
-# dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
-# class_names = image_datasets['train'].classes
-#
-# # checks if GPU is available, and then decide accordingly...
+
+#%% checks if GPU is available, and then decide accordingly...
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 if torch.cuda.is_available():
@@ -79,18 +46,6 @@ if torch.cuda.is_available():
 else:
     print('CPU-mode is set')
 
-#%% show the image data
-# # Get a batch of training data
-# inputs, classes = next(iter(dataloaders['train']))
-#
-# # Make a grid from batch
-# out = torchvision.utils.make_grid(inputs)
-#
-# #pwd = os.getcwd()+'/Pytorch_GlomerulusClassification'
-# # insert at 1, 0 is the script path (or '' in REPL)
-# #sys.path.insert(1, pwd)
-#
-# imshow(out, title=[class_names[x] for x in classes])
 
 #%% define the training function
 # why can't that be done within another file -> not understandable
@@ -269,19 +224,13 @@ def adapt_model(model_ft, imodel, n_classes):
     return(model_ft)
 
 #%% define a list of models
-# model_list = ['alex',
-#               'ResNet18', 'ResNet34', 'ResNet50', 'ResNet101', 'ResNet152',
-#               'vgg11', 'vgg16', 'vgg19',
-#               'inception',
-#               'densenet121']
-# model_list = ['inception', 'squeeznet'] # scheinbar ein Problem mit den densenets ab 161?
 model_list = ['ResNet152']
 save_path = saveModelPth
 
 #%% iterate over the model list
 for imodel in model_list:
 
-    #%% # Data augmentation and normalization for training
+    #%% Data augmentation and normalization for training
     # Just normalization for validation
     if imodel == 'inception':
         inputSize = 299
@@ -313,21 +262,12 @@ for imodel in model_list:
     model_ft = model_ft.to('cuda')
 
     #%% set the training parameter
-    #get weights
-    # classcount = np.zeros((len(dataloaders['train'].dataset.classes)))
-    # for sample in dataloaders['train'].dataset.samples:
-    #     classcount[int(sample[1])] += 1
-    # weights = (1 - classcount / classcount.sum())
-    # print('Weights: ', weights)
-    # weights = torch.tensor(weights).to('cuda')
     criterion = nn.CrossEntropyLoss(weight = weightsTens)
 
     # Observe that all parameters are being optimized
     optimizer_ft = optim.SGD(model_ft.parameters(), lr=0.001, momentum=0.9)
 
     # Decay LR by a factor of 0.1 every 7 epochs
-    #exp_lr_scheduler = lr_scheduler.StepLR(optimizer_ft, step_size=3, gamma=0.2)
-    #exp_lr_scheduler = ReduceLROnPlateau(optimizer_ft, mode='min',factor=0.5, patience=3,verbose=1)
     lr_scheduler = ReduceLROnPlateau(optimizer_ft, mode='min', factor=0.5, patience=7, verbose=1)
     def get_lr(opt):
         for param_group in opt.param_groups:
