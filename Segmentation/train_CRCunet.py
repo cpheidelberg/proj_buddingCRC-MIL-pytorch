@@ -60,16 +60,6 @@ val_iteration = 5
 now = datetime.now()
 date = now.strftime('%Y_%m_%d')
 
-
-
-
-
-
-
-
-
-# print('np-version \t', np.version.version)
-# print('torch version\t', torch.__version__)
 #%% helper function for pretty printing of current time and remaining time
 def asMinutes(s):
     m = math.floor(s / 60)
@@ -98,8 +88,6 @@ else:
 
 
 
-
-
 #%% build the model according to the paramters specified above and copy it to the GPU. finally print out the number of trainable parameters
 
 #checkpoint = torch.load('CRC1000WholeProject_unet_best_model.pth', map_location=lambda storage, loc: storage) #load checkpoint to CPU and then put to device https://discuss.pytorch.org/t/saving-and-loading-torch-models-on-2-machines-with-different-number-of-gpu-devices/6666
@@ -108,9 +96,6 @@ model = UNet(n_classes=n_classes, in_channels=in_channels, padding=padding, dept
 #model.load_state_dict(checkpoint["model_dict"])
 
 print(f"total params: \t{sum([np.prod(p.size()) for p in model.parameters()])}")
-
-
-
 
 
 #%% this defines our dataset class which will be used by the dataloader
@@ -282,11 +267,6 @@ def get_lr(opt):
 
 current_lr=get_lr(optim)
 
-# %load_ext line_profiler
-# %lprun
-# %%prun
-
-
 
 #%%visualising development of loss/accuracy over epochs
 loss_history = {
@@ -361,7 +341,7 @@ for epoch in range(num_epochs):
                         F1_I.append(f1_score(yflat, cpredflat, labels=classes, average='micro'))
 
 
-        #print(phase, 'done')
+     
         if phase == 'train' or epoch % val_iteration == 0:
             all_acc[phase] = (cmatrix[phase] / cmatrix[phase].sum()).trace()
             all_loss[phase] = all_loss[phase].cpu().numpy().mean()
@@ -372,22 +352,8 @@ for epoch in range(num_epochs):
             with open(f"{dataname}_{phase}_lossHistory.txt", "w") as f:
                 for s in loss_history[phase]:
                     f.write(str(s) + "\n")
-            #print(phase, 'loss saved')
+            
 
-
-        #print('all loss and accuracy acquired')
-        # save metrics to tensorboard, only works on two classes probably
-        #writer.add_scalar(f'{phase}/loss', all_loss[phase], epoch)
-        # if phase in validation_phases:
-        #     writer.add_scalar(f'{phase}/acc', all_acc[phase], epoch)
-        #     writer.add_scalar(f'{phase}/TN', cmatrix[phase][0, 0], epoch)
-        #     writer.add_scalar(f'{phase}/TP', cmatrix[phase][1, 1], epoch)
-        #     writer.add_scalar(f'{phase}/FP', cmatrix[phase][0, 1], epoch)
-        #     writer.add_scalar(f'{phase}/FN', cmatrix[phase][1, 0], epoch)
-        #     writer.add_scalar(f'{phase}/TNR', cmatrix[phase][0, 0] / (cmatrix[phase][0, 0] + cmatrix[phase][0, 1]),
-        #                       epoch)
-        #     writer.add_scalar(f'{phase}/TPR', cmatrix[phase][1, 1] / (cmatrix[phase][1, 1] + cmatrix[phase][1, 0]),
-        #                       epoch)
         if phase == 'train':
             print('train: %s ([%d/%d] %d%%),  loss: %.4f  current lr: %f ' % (timeSince(start_time, (epoch + 1) / num_epochs),
                                                                     epoch + 1,
@@ -436,10 +402,6 @@ for epoch in range(num_epochs):
             else:
                 print("")
 
-# In[ ]:
-
-
-# %lprun -f trainnetwork trainnetwork(edge_weight)
 
 #%% Visualize Loss over training
 
@@ -458,22 +420,15 @@ plt.show()
 # At this stage, training is done...below are snippets to help with other tasks: output generation + visualization
 
 
-# In[ ]:
-
 
 # ----- generate output
 # load best model
 checkpoint = torch.load(f"{date}-{dataname}-unet_best_model.pth")
 model.load_state_dict(checkpoint["model_dict"])
 
-# In[ ]:
-
 
 # grab a single image from validation set
 [img, mask, mask_weight] = dataset["val"][2]
-
-# In[ ]:
-
 
 # generate its output
 # %%timeit
@@ -481,8 +436,6 @@ output = model(img[None, ::].to(device))
 output = output.detach().squeeze().cpu().numpy()
 output = np.moveaxis(output, 0, -1)
 output.shape
-
-# In[ ]:
 
 
 # visualize its result
@@ -502,13 +455,8 @@ ax[3].imshow(np.moveaxis(img.numpy(), 0, -1))
 ax[3].set_title('Image Input')
 plt.show()
 
-# In[ ]:
-
 
 # ------- visualize kernels and activations
-
-
-# In[ ]:
 
 
 # helper function for visualization
@@ -535,9 +483,6 @@ def plot_kernels(tensor, num_cols=8, cmap="gray"):
     plt.show()
 
 
-# In[ ]:
-
-
 class LayerActivations():
     features = None
 
@@ -551,30 +496,14 @@ class LayerActivations():
         self.hook.remove()
 
 
-# In[ ]:
-
 
 # --- visualize kernels
-
-
-# In[ ]:
-
-
 w = model.up_path[2].conv_block.block[3]
 plot_kernels(w.weight.detach().cpu(), 8)
 
-# In[ ]:
-
 
 # ---- visualize activiations
-
-
-# In[ ]:
-
-
 dr = LayerActivations(model.up_path[2].conv_block.block[3])
-
-# In[ ]:
 
 
 [img, mask, mask_weight] = dataset["val"][9]
@@ -582,11 +511,3 @@ plt.imshow(np.moveaxis(img.numpy(), 0, -1))
 output = model(img[None, ::].to(device))
 plot_kernels(dr.features, 8, cmap="rainbow")
 
-# In[ ]:
-
-
-# In[ ]:
-
-
-# # ---- Improvements:
-# 1 replace Adam with SGD with appropriate learning rate reduction
