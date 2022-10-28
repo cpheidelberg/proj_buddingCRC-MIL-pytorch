@@ -1,3 +1,4 @@
+#%%imports
 import time
 import sys
 import glob
@@ -8,20 +9,21 @@ from sklearn import model_selection
 
 test_set_size = .1  # what percentage of the dataset should be used as a held out validation/testing set
 val_set_size = .15
-dataSource = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GAN-Training/results/normalized_to_HEV_s1024_c128/test_60_tiles2Normalize/normalized'
-classification = 'central2Nodal'
+dataSource = '/home/usr/data'   
+classification = 'central2Nodal'    #name of the classification to conduct in the format 'tumor region' 2 'clinical patient data'
 tiles = []
 
 
+#%% setup files and destination folders according to classification
 if 'boarder' in classification:
-    root = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/ColourNormalizedTiles/TumorBoarder'  # where to move the files to
-    with open('boarderTumor.txt', 'r') as f:
+    root = '/home/dr1/GrazKollektiv/ColourNormalizedTiles/TumorBoarder'  # where to move the files to
+    with open('boarderTumor.txt', 'r') as f:    #this list contains the filenames of all the tiles containing boarder tumor areas
         for line in f:
             tiles.append(line.replace('\n', ''))
     tiles = list(set(tiles))
 
 elif 'central' in classification:
-    root = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/ColourNormalizedTiles/TumorCentral'  # where to move the files to
+    root = '/home/dr1/GrazKollektiv/ColourNormalizedTiles/TumorCentral'  # where to move the files to
     with open('centralTumor.txt', 'r') as f:
         for line in f:
             tiles.append(line.replace('\n', ''))
@@ -29,19 +31,19 @@ elif 'central' in classification:
 else:
     raise ValueError('Classification must contain boarder or central!')
 
-#%% extract Cases from excel
+#%% extract Cases from excelfile with clinical patient data
 if 'Nodal' in classification:
-    Excel = pd.read_excel('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GrazKollektivDataBase.xlsx', sheet_name='PatientData')
-    FallNodal = pd.DataFrame(Excel, columns= ['UNum', 'N Routine'])
-    dfCleared = FallNodal.dropna()
-    dfCleared['UNum'] = dfCleared['UNum'].astype(int).astype(str)
+    Excel = pd.read_excel('/home/dr1/GrazKollektiv/GrazKollektivDataBase.xlsx', sheet_name='PatientData')
+    FallNodal = pd.DataFrame(Excel, columns= ['UNum', 'N Routine']) #get patientID and Nodal status
+    dfCleared = FallNodal.dropna()  #drop colums with empty values
+    dfCleared['UNum'] = dfCleared['UNum'].astype(int).astype(str)   
     dfCleared['N Routine'] = dfCleared['N Routine'].astype(int)
     classes = np.arange(0,3,1)
 
 elif 'Budding' in classification:
     Excel = pd.read_excel('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GrazKollektivDataBase.xlsx', sheet_name='BuddingData')
     FallNodal = pd.DataFrame(Excel) #, columns= ['U_Nummer', 'Border II (1: < 5 budding foci; 2: 5-9 budding foci; 3: 10-19 budding foci; 4: ≥20 budding foci\n)'])  #.rename(columns={"Border II (1: < 5 budding foci; 2: 5-9 budding foci; 3: 10-19 budding foci; 4: ≥20 budding foci)": "Budding"})
-    FallNodal = FallNodal.iloc[:,[2, 19]]
+    FallNodal = FallNodal.iloc[:,[2, 19]]   #get patientID and Budding status
     FallNodal = FallNodal.rename(columns = {FallNodal.columns[1] : 'Budding'})
     FallNodal = FallNodal.rename(columns =  {FallNodal.columns[0] : 'UNum'})
     dfCleared = FallNodal.dropna()
@@ -51,7 +53,7 @@ elif 'Budding' in classification:
 
 elif 'Progress' in classification:
     Excel = pd.read_excel('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GrazKollektivDataBase.xlsx', sheet_name='PatientData')
-    FallNodal = pd.DataFrame(Excel, columns=['UNum', 'Progress'])
+    FallNodal = pd.DataFrame(Excel, columns=['UNum', 'Progress'])   #get patientID and progress status
     dfCleared = FallNodal.dropna()
     dfCleared['UNum'] = dfCleared['UNum'].astype(int).astype(str)
     dfCleared['Progress'] = dfCleared['Progress'].astype(int)
@@ -67,14 +69,16 @@ usableTiles =[]
 notListed = []
 multiListed = []
 
+#prepare folders
 for clas in classes:
     if not os.path.exists(os.path.join(root, str(clas))):
         os.mkdir(os.path.join(root, str(clas)))
 
+        
 for tile in tiles:
     tileIDX = os.path.basename(tile).split('_')[0]
     Case = dfCleared[dfCleared['UNum'].str.endswith(tileIDX)]
-    normalizedTile = os.path.join(dataSource,os.path.basename(tile).replace('.tif', '_fake.png'))
+    normalizedTile = os.path.join(dataSource,os.path.basename(tile).replace('.tif', '_fake.png'))   #
     if len(Case) == 1:
         NodalStat = Case.to_numpy()[0, 1]
         if not os.path.isfile(os.path.join(root, str(NodalStat), os.path.basename(normalizedTile))):
