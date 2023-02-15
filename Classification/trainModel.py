@@ -19,8 +19,8 @@ import glob
 
 
 #%% setup
-root = '/home/dr1/GrazKollektiv/TumorBoarder'   #where the tiles are stored
-saveModelPth = '/home/dr1/PycharmProjects/GraMa/trainedModels'  #where to store the model and statistics
+root = '/home/usr/GrazKollektiv/TumorBoarder'   #where the tiles are stored
+saveModelPth = '/home/usr/PycharmProjects/GraMa/trainedModels'  #where to store the model and statistics
 classification = 'Nodals2Cases' #what to classify
 
 #%% prepare parameters
