@@ -5,7 +5,7 @@ Segmentation and classification of HE-stained colorectal carcinoma (CRC) tissue.
 1. Segmentation
 
 For segmentation we use a U-Net adaptded from choosehappy. In our adaption it requires a txt-file with the palette of the annotation and a folder containing the tile pairs raw HE-tile as .tif and the matching label mask as .png with equal file names. 
-At first you have to generate a hdf5 file as dataset. Then you can train the U-Net on the given hdf5-file. Along with the model, "trainUNet.py" also generates files containing statistic output such as accuracy and loss. 
+At first you have to generate a hdf5 file as dataset. Then you can train the U-Net on the given hdf5-file. Along with the model, "train_CRCunet.py" also generates files containing statistic output such as accuracy and loss. 
 
 2. Classification
 Before classification the HE-whole slide images (WSIs) underwent preparations: 
