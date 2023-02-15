@@ -9,8 +9,7 @@ At first you have to generate a hdf5 file as dataset. Then you can train the U-N
 
 2. Classification
 Before classification the HE-whole slide images (WSIs) underwent preparations: 
-  - tiling of the WSI
-  - exclude tiles with less than 50% tissue using WSItools
+  - "wsiFiltering.py" tiling of the WSI and exclude tiles with few tissue
   - segmentation of the tiles with the before trained U-Net
   - write lists with filenames for tiles containing
     a) 75% to 95% tumor, refered to as border tumor
