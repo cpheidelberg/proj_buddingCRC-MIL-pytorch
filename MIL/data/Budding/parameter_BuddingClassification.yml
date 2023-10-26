@@ -1,0 +1,11 @@
+
+sds_path:
+  Darwin: /Volumes/
+  Linux: /home/usr/root/
+  Windows: Z:/
+
+datasets:
+  training_images: hdf5_512x512_train_dump.h5
+  training_df: df_512x512_train.pkl
+  validation_images: hdf5_512x512_val_dump.h5
+  validation_df: df_512x512_test.pkl

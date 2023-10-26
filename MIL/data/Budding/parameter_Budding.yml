@@ -1,0 +1,23 @@
+ResNet152: 124
+dataset_name: Budding
+images:
+  data_file: data/Budding/Budding_bags.pkl
+  im_size: 512
+  save_path_df: data/CRC
+mapping:
+  label: Class
+  location: tumor
+model:
+  model_name: resnet152
+  n_classes: 2
+  n_neurons: 5
+model_tag:
+
+model_training:
+  mix_bag: false
+  model_save_path: BuddingBags/tumor_all
+  n_epochs: 600
+sds_path:
+  Darwin: /Volumes/
+  Linux: /home/usr/root/
+  Windows: Z:/

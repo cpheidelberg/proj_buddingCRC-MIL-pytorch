@@ -1,0 +1,40 @@
+
+sds_path:
+  Darwin: /Volumes/
+  Linux: /home/usr/root/
+  Windows: Z:/
+
+images:
+  data_file: {10: data/CRC/CRC_bags_f0.1.pkl}
+  im_size: 256
+  save_path_df: data/CRC
+  n_images: 10
+
+mapping:
+  location: CRC
+  label: Class
+
+model:
+  model_name: resnet152
+  n_classes: 2
+
+data_generation:
+  epochs: 1
+  norm_func: norm_func
+  use_image_crop: False
+  data_path: CRC-Test
+
+model_mil:
+  aggregation: attention
+
+visualization:
+  plot_pca: True
+  plot_TSNE: False
+
+augmentation:
+  noise: None
+  synthetic_data: False
+
+model_training:
+  n_epochs: 100
+  mix_bag: False

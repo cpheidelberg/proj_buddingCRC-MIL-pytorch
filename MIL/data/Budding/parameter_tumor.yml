@@ -1,0 +1,19 @@
+
+data_generation:
+  epochs: 10
+  norm_func: norm_func
+  use_image_crop: True
+  data_path: BuddingBags/tumor_all
+
+model_mil:
+  aggregation: attention
+
+visualization:
+  plot_pca: True
+  plot_TSNE: False
+
+augmentation:
+  noise: S&P
+  synthetic_data: False
+  data_splitting: 4
+  bag_size: 50

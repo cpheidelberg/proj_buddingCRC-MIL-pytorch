@@ -1,6 +1,5 @@
-
 #%% import section
-# get the files and sds_path
+# get files and path
 import pandas
 import platform
 import hiyapyco

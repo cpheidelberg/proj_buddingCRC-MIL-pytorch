@@ -1,0 +1,39 @@
+
+sds_path:
+  Darwin: /Volumes/
+  Linux: /home/usr/root/
+  Windows: Z:/
+
+images:
+  data_file: {1000: data/MINST/MINST_bags_1e3.pkl, 200: data/MINST/MINST_bags_2e2.pkl, 100: data/MINST/MINST_bags_1e2.pkl, 250: data/MINST/MINST_bags_250.pkl}
+  im_size: 32
+  save_path_df: data/MINST
+  n_images: 250
+
+mapping:
+  location: "MINST"
+  label: Nodal
+
+model:
+  model_name: "resnet152"
+  n_classes: 2
+
+data_generation:
+  epochs: 1
+  norm_func: norm_func
+  data_path: MINST-test
+
+model_mil:
+  aggregation: attention
+
+visualization:
+  plot_pca: True
+  plot_TSNE: True
+
+augmentation:
+  noise: None
+  synthetic_data: False
+
+model_training:
+  n_epochs: 100
+  mix_bag: False
