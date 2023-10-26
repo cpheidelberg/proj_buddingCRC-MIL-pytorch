@@ -37,7 +37,7 @@ with open('CAM-C2N_filelist.txt','r') as f:
 newPaths = []
 for file in files:
     filename = os.path.basename(file[0])
-    newPath = glob.glob(f'/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/ColourNormalizedTiles/All/*/*/{filename}')
+    newPath = glob.glob(f'/usr/GrazKollektiv/ColourNormalizedTiles/All/*/*/{filename}')
     newPaths.append(newPath[0])
 
 
@@ -56,7 +56,7 @@ display_transform = transforms.Compose([
 
 
 
-save_path = '/home/dr1/PycharmProjects/GraMa/trainedModelsNormalized/Nodals2Classes'    #Place for test Statistics, Model is there too
+save_path = '/usr/trainedModelsNormalized/Nodals2Classes'    #Place for test Statistics, Model is there too
 
 #%% load and prepare the model
 model = torch.load(save_path + '/Resnet-Model.pt')

@@ -4,7 +4,7 @@ import cv2
 import matplotlib.pyplot as plt
 import glob
 
-data_set = "/home/cw9/sds_hd/sd21c015/Dataset_CRCvsICCA"
+data_set = "/home/usr/root/dir/Dataset_CRCvsICCA"
 data_set = glob.glob(data_set + "/train/**/*jpg")
 
 image = cv2.imread(data_set[0])

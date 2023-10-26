@@ -19,9 +19,9 @@ def find_image_files(folder_path):
 
 #%% get all images
 if platform.system()=="Darwin":
-    sds_path ="/Volumes/sd18a006"
+    sds_path ="/Volumes/dir"
 else:
-    sds_path = "/home/cw9/sds_hd/sd18a006"
+    sds_path = "/home/usr/root/dir"
 
 image_list = find_image_files(sds_path + "/DataBaseMINST")
 

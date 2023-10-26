@@ -8,9 +8,9 @@ import platform
 import numpy as np
 
 if platform.system()=="Darwin":
-    sds_path ="/Volumes/sd18a006"
+    sds_path ="/Volumes/root"
 else:
-    sds_path = "/home/cw9/sds_hd/sd18a006"
+    sds_path = "/home/usr/root/dir"
 
 def download_mnist_images(output_folder):
     # Create output folders per class

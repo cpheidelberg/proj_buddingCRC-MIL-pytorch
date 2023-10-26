@@ -22,7 +22,7 @@ class FileList():
 
     def __getitem__(self, index):
         file_name_original = self.file_list[index]
-        file_name = file_name_original.replace("/home/cw9/sds_hd/sd18a006/", self.sds_path + "sd18a006/")
+        file_name = file_name_original.replace("/home/usr/root/dir/", self.sds_path + "dirx/")
         return file_name
 
 #%% reset the labels

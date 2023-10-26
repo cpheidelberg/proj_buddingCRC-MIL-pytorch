@@ -56,7 +56,7 @@ if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
 Files = []  #glob.glob(os.path.join(datapath,'*','*.svs'))
-with open("/home/dr1/PycharmProjects/wsi-tools/wsi-tools/Filelist.txt", "r") as f:
+with open("/usr/PycharmProjects/wsi-tools/wsi-tools/Filelist.txt", "r") as f:
    for line in f:
        Files.append(line.rstrip('\n'))
 

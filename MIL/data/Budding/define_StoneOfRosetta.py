@@ -2,7 +2,8 @@
 
 #%% import section
 import pandas as pd
-df_dataset = pd.read_pickle("data/CRC/svs-patData-BAGS.pkl")
+df_dataset = pd.read_pickle("data/CRC/svs-patData-BAGS.pkl")    #pandas DF with columns among others...
+# [centralTiles, boarderTiles, NoTumorTiles] each with lists of paths to corresponding WSI-tiles, one WSI each row
 
 #%% get a list of all images (without sds-path)
 def get_file_names(file_list):
