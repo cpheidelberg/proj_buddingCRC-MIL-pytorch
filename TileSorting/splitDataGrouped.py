@@ -28,6 +28,7 @@ else:
     tiledir =  f'/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Tumor{tumorArea}/'
     tileFormat = 'tif'
     tileOrigin = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Original-Kollektiv'
+
 modelpath = os.path.join('/home/dr1/PycharmProjects/GraMa/',modeldir,classification)
 print('Model Path:', modelpath)
 if not os.path.isdir(modelpath):
@@ -50,52 +51,6 @@ tiles = list(set(tiles))
 svsID = []
 for tile in tiles:
     svsID.append(os.path.basename(tile).split('_')[0])
-
-#%% make a df
-# patBudImgData = pd.DataFrame({'UNum': SVSonePCase.UNum.to_list(),
-#                               'svs': SVSonePCase.svs.to_list(),
-#                               #'tile': np.NAN,
-#                               'Budding': np.NAN,
-#                               'Nodal': np.NAN,
-#                               'Grading': np.NAN,
-#                               'Progress': np.NAN})
-
-#%% get clinical data
-# Excel = pd.read_excel('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GrazKollektivDataBase.xlsx',
-#                       sheet_name='BuddingData')
-# BuddingData = Excel.iloc[:, [2, 19]]
-# BuddingData = BuddingData.rename(columns={BuddingData.columns[1]: 'Budding'})
-# BuddingData = BuddingData.rename(columns={BuddingData.columns[0]: 'UNum'})
-# BuddingCleared = BuddingData.dropna()
-# BuddingCleared['UNum'] = BuddingCleared['UNum'].astype(int).astype(str)
-# BuddingCleared['Budding'] = BuddingCleared['Budding'].astype(int)
-#
-# GradingSheet = pd.read_excel('/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GrazKollektivDataBase.xlsx',
-#                              sheet_name='PatientData')
-# GradingData = pd.DataFrame(GradingSheet, columns=['UNum', 'N Routine', 'Progress', 'G Routine'])
-# GradingData = GradingData.rename(columns={GradingData.columns[3]: 'Grading'}).rename(
-#     columns={GradingData.columns[1]: 'Nodal'})
-# GradingCleared1 = GradingData.dropna(how='all')
-# GradingCleared2 = GradingCleared1.fillna(-1)
-# GradingCleared = GradingCleared2.astype({'Nodal': 'int', 'Progress': 'int', 'Grading': 'int'})
-# GradingCleared['UNum'] = GradingCleared['UNum'].astype(int).astype(str)
-#
-# patientData = GradingCleared
-#
-# GradingCleared['Grading'] = GradingCleared['Grading'].astype(int)
-
-#%% align patient and Budding Data to Img
-# for i in patBudImgData.index:
-#     UNUm = patBudImgData.at[i, 'UNum']
-#     Budding = BuddingData.loc[BuddingData['U_Nummer'] == UNUm].copy().reset_index(drop=True)
-#     patData = patientData.loc[patientData['UNum'] == UNUm, ['N Routine', 'G Routine', 'Progress']].copy().reset_index(drop=True)
-#     Nodal, Grading, Progress = patData.loc[0,:]
-#     if Budding.empty:
-#         patBudImgData.at[i, 'Budding'] = np.NAN
-#     else:
-#         patBudImgData.at[i, 'Budding'] = Budding.iloc[0,19]
-#     patBudImgData.loc[i, ['Nodal', 'Grading', 'Progress']] = Nodal, Grading, Progress
-
 
 #%% all the stuff before got saved as a df: just load and do work, the central has no meaning
 patBudImgData = pd.read_pickle('centralTumor_svsPatData.pkl')
@@ -128,35 +83,6 @@ X = np.atleast_2d(ClassDataset.tile.to_numpy()).reshape(-1,1)
 y = ClassDataset.Nodal.to_list()
 groups = ClassDataset.ID.astype(int).to_list()
 all_index = ClassDataset.index.to_numpy()
-
-#%% vizualize distribution of classes over cases
-# def visualize_groups(classes, groups, name):
-#     # Visualize dataset groups
-#     fig, ax = plt.subplots()
-#     ax.scatter(
-#         range(len(groups)),
-#         [0.5] * len(groups),
-#         c=groups,
-#         marker="_",
-#         lw=50,
-#         cmap=cmap_data,
-#     )
-#     ax.scatter(
-#         range(len(groups)),
-#         [3.5] * len(groups),
-#         c=classes,
-#         marker="_",
-#         lw=50,
-#         cmap=cmap_data,
-#     )
-#     ax.set(
-#         ylim=[-1, 5],
-#         yticks=[0.5, 3.5],
-#         yticklabels=["Data\ngroup", "Data\nclass"],
-#         xlabel="Sample index",
-#     )
-# visualize_groups(y, groups , "no groups")
-
 
 
 #%% split the data into train, val, test
