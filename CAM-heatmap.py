@@ -37,7 +37,7 @@ with open('CAM-C2N_filelist.txt','r') as f:
 newPaths = []
 for file in files:
     filename = os.path.basename(file[0])
-    newPath = glob.glob(f'/usr/GrazKollektiv/ColourNormalizedTiles/All/*/*/{filename}')
+    newPath = glob.glob(f'/usr/ColourNormalizedTiles/All/*/*/{filename}')
     newPaths.append(newPath[0])
 
 

@@ -17,11 +17,7 @@ import os
 import glob
 from tifffile import imsave
 
-Files = []  #glob.glob(os.path.join(datapath,'*','*.svs'))
-with open("Filelist.txt", "r") as f:
-   for line in f:
-       Files.append(line.rstrip('\n'))
-
+Files = glob.glob(os.path.join(datapath,'*.svs'))
 
 for ii, file in enumerate(Files):
     slide = open_slide(file)

@@ -14,14 +14,14 @@ tiles = []
 saveStatistics = 'OFF'
 
 if 'boarder' in classification:
-    root = '/usr/GrazKollektiv/ColourNormalizedTiles/TumorBoarder'  # where to move the files to
+    root = '/usr/ColourNormalizedTiles/TumorBoarder'  # where to move the files to
     with open('boarderTumor.txt', 'r') as f:
         for line in f:
             tiles.append(line.replace('\n', ''))
     tiles = list(set(tiles))
 
 elif 'central' in classification:
-    root = '/usr/GrazKollektiv/ColourNormalizedTiles/TumorCentral'  # where to move the files to
+    root = '/usr/ColourNormalizedTiles/TumorCentral'  # where to move the files to
     with open('centralTumor.txt', 'r') as f:
         for line in f:
             tiles.append(line.replace('\n', ''))
@@ -31,15 +31,15 @@ else:
 
 #%% extract Cases from excel
 if 'Nodal' in classification:
-    Excel = pd.read_excel('/usr/GrazKollektivPatientData.xlsx', sheet_name='PatientData')
-    FallNodal = pd.DataFrame(Excel, columns= ['UNum', 'N Routine'])
+    Excel = pd.read_excel('/usr/PatientData.xlsx', sheet_name='PatientData')
+    FallNodal = pd.DataFrame(Excel, columns= ['UNum', 'N Routine'])     #UNum resembles the case identifier, N Routine = nodal Status (int)
     dfCleared = FallNodal.dropna()
     dfCleared['UNum'] = dfCleared['UNum'].astype(int).astype(str)
     dfCleared['N Routine'] = dfCleared['N Routine'].astype(int)
     classes = np.arange(0,3,1)
 
 elif 'Budding' in classification:
-    Excel = pd.read_excel('/usr/GrazKollektivPatientData.xlsx', sheet_name='BuddingData')
+    Excel = pd.read_excel('/usr/PatientData.xlsx', sheet_name='BuddingData')
     FallNodal = pd.DataFrame(Excel) #, columns= ['U_Nummer', 'Border II (1: < 5 budding foci; 2: 5-9 budding foci; 3: 10-19 budding foci; 4: ≥20 budding foci\n)'])  #.rename(columns={"Border II (1: < 5 budding foci; 2: 5-9 budding foci; 3: 10-19 budding foci; 4: ≥20 budding foci)": "Budding"})
     FallNodal = FallNodal.iloc[:,[2, 19]]
     FallNodal = FallNodal.rename(columns = {FallNodal.columns[1] : 'Budding'})
@@ -50,7 +50,7 @@ elif 'Budding' in classification:
     classes = np.arange(0,5,1)
 
 elif 'Progress' in classification:
-    Excel = pd.read_excel('/usr/GrazKollektivPatientData.xlsx', sheet_name='PatientData')
+    Excel = pd.read_excel('/usr/PatientData.xlsx', sheet_name='PatientData')
     FallNodal = pd.DataFrame(Excel, columns=['UNum', 'Progress'])
     dfCleared = FallNodal.dropna()
     dfCleared['UNum'] = dfCleared['UNum'].astype(int).astype(str)

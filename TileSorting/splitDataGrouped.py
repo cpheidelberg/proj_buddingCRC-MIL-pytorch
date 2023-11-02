@@ -20,24 +20,20 @@ booleanClassification = True
 #%% select path for output
 if normalized:
     modeldir = 'trainedModelsNormalized'
-    tiledir = f'/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/ColourNormalizedTiles/Tumor{tumorArea}/'
+    tiledir = f'/path/aim/for/ColourNormalizedTiles/Tumor{tumorArea}/'
     tileFormat = 'png'
-    tileOrigin = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/GAN-Training/results/normalized_to_HEV_s1024_c128/test_60_tiles2Normalize/normalized'
+    tileOrigin = '/path/with/all/normalized/tiles'
 else:
     modeldir = 'trainedModels'
-    tiledir =  f'/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Tumor{tumorArea}/'
+    tiledir =  f'/path/for/raw/tiles/Tumor{tumorArea}/'     #raw meaning "not normalized"
     tileFormat = 'tif'
-    tileOrigin = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Original-Kollektiv'
+    tileOrigin = '/path/with/all/raw/tiles'
 
-modelpath = os.path.join('/home/dr1/PycharmProjects/GraMa/',modeldir,classification)
+modelpath = os.path.join('models/are/stored/here',modeldir,classification)
+
 print('Model Path:', modelpath)
 if not os.path.isdir(modelpath):
     os.mkdir(modelpath)
-#check if there are tiles left in tiledir
-remaining = glob.glob(os.path.join(tiledir,'*', '*', f'*.{tileFormat}'))
-if not len(remaining) == 0:
-    raise Warning('Tile Aim Folders are not empty, \n'
-                  'use skript "getOut.py" to remove tiles')
 
 #%% first: make a df with all the information about svs, UNum, Nodalstatus...
 #%% get tiles with certain tumor areas
@@ -53,21 +49,9 @@ for tile in tiles:
     svsID.append(os.path.basename(tile).split('_')[0])
 
 #%% all the stuff before got saved as a df: just load and do work, the central has no meaning
-patBudImgData = pd.read_pickle('centralTumor_svsPatData.pkl')
+ClassDataset = pd.read_pickle('svsPatData.pkl') #Dataframe containing svsIDs from tile, respective case ID and patient data Nodal/Budding status
+# columns: 'tile', 'ID', 'Nodal'
 
-labels = []
-for ID in svsID:
-    case = patBudImgData.loc[patBudImgData['svs'] == ID]
-    if case.empty:
-        labels.append(np.NaN)
-    else:
-        labels.append(case.Nodal.to_list()[0])
-
-ClassDataset = pd.DataFrame({'tile': tiles,
-                             'ID': svsID,
-                             'Nodal': labels})
-ClassDataset.dropna(inplace=True)
-ClassDataset.ID = ClassDataset.ID.astype(int)
 if booleanClassification:
     ClassDataset.replace({'Nodal':2}, 1, inplace=True)
     if 2 in ClassDataset['Nodal'].unique():
@@ -169,22 +153,16 @@ plt.show()
 
 #%% sort Data according to index
 dataSource = tileOrigin
-aim = tiledir   # '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/ColourNormalizedTiles/TumorBoarder/'
-oldRawDir = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv'
-newRawDir = '/home/dr1/sds_hd/sd18a006/DataBaseCRCProjekt/GrazKollektiv/Original-Kollektiv'
+aim = tiledir
 print('sorting Train')
 if booleanClassification:
     tire = '2-tiered'
 else:
     tire = '3-tiered'
-
 for i,idx in enumerate(train_index):
     tile, Nodal  = ClassDataset.loc[idx, ['tile', 'Nodal']]
-
     if normalized:
         MoveTile = os.path.join(dataSource, os.path.basename(tile).replace('.tif', '_fake.png'))
-    else:
-        MoveTile = tile.replace(oldRawDir, newRawDir)
     if os.path.isfile(MoveTile):
         os.rename(MoveTile, os.path.join(aim,tire,'train', str(Nodal.astype(int)), os.path.basename(MoveTile)))
     print(f"Sorted: {i+1} / {len(train_index)}", end="\r", flush=True)
@@ -195,8 +173,6 @@ for i, idx in enumerate(val_index):
     tile, Nodal  = ClassDataset.loc[idx, ['tile', 'Nodal']]
     if normalized:
         MoveTile = os.path.join(dataSource, os.path.basename(tile).replace('.tif', '_fake.png'))
-    else:
-        MoveTile = tile.replace(oldRawDir, newRawDir)
     os.rename(MoveTile, os.path.join(aim, tire, 'val', str(Nodal.astype(int)), os.path.basename(MoveTile)))
     print(f"Sorted: {i+1} / {len(val_index)}", end="\r", flush=True)
 print('')
@@ -206,8 +182,6 @@ for i,idx in enumerate(test_index):
     tile, Nodal  = ClassDataset.loc[idx, ['tile', 'Nodal']]
     if normalized:
         MoveTile = os.path.join(dataSource, os.path.basename(tile).replace('.tif', '_fake.png'))
-    else:
-        MoveTile = tile.replace(oldRawDir, newRawDir)
     os.rename(MoveTile, os.path.join(aim, tire, 'test', str(Nodal.astype(int)), os.path.basename(MoveTile)))
     print(f"Sorted: {i+1} / {len(test_index)}", end="\r", flush=True)
 print('')
@@ -225,9 +199,9 @@ for phase in ['train', 'val', 'test']:
         for file in Files:
             fileID = os.path.basename(file).split('_')[0]
             if booleanClassification:
-                checkStatus = patBudImgData.loc[patBudImgData['svs'] == fileID,['Nodal']].Nodal.astype(int).replace(2,1).item()
+                checkStatus = ClassDataset.loc[ClassDataset['svs'] == fileID,['Nodal']].Nodal.astype(int).replace(2,1).item()
             else:
-                checkStatus = patBudImgData.loc[patBudImgData['svs'] == fileID, ['Nodal']].Nodal.astype(int).item()
+                checkStatus = ClassDataset.loc[ClassDataset['svs'] == fileID, ['Nodal']].Nodal.astype(int).item()
             if not status == checkStatus:
                 print(f'wrong in {phase, status}: {file}')
 

@@ -55,10 +55,8 @@ print(f"total params: \t{sum([np.prod(p.size()) for p in model.parameters()])}")
 if not os.path.exists(OUTPUT_DIR):
     os.makedirs(OUTPUT_DIR)
 
-Files = []  #glob.glob(os.path.join(datapath,'*','*.svs'))
-with open("/usr/PycharmProjects/wsi-tools/wsi-tools/Filelist.txt", "r") as f:
-   for line in f:
-       Files.append(line.rstrip('\n'))
+Files = glob.glob(os.path.join(args.basepath,'*.svs'))
+
 
 #%% define output categories
 centralTumor = []  # list of tiles containing >= 95% Tumor
