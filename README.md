@@ -28,12 +28,42 @@ Before classification the HE-whole slide images (WSIs) need preparations:
     a) 75% to 95% tumor, referred to as border tumor
     b) more than 95% tumor, referred to as central tumor
   - Tiles from a) and b) were color normalized using a GAN from Runz et al.
+    -> normalized tiles carry the ending '_fake.png' whereas raw tiles without normalization are '.tif' files
   - Sorting:
     - "sortNormalized2Datasets.py" with an additional excel sheet containing the clinical patient data the files were sorted for the     classification into training, validation, and testing
-    - "something about grouped for WSI sorting"
+    - "splitDataGrouped.py": Requires a pandas dataframe containing the combination of complete tile path, WSI ID and corresponding nodal status and some path adjustments. Then you can sort the tiles for training grouped after WSI such that tiles from one WSI only appear in training or validation or testing exclusively.     
   
 ### Classification
 With "trainModel.py" you generate a ResNet152 model along optional statistic output like Jaccard index, F1 score, accuracy. 
+The Dataloader is based on the folder structure with a separate folder for training, validation and testing phase, respectively. Each is subdivided into the classes (e.g. 0 and 1 for binary nodal status classification) with the single tiles in each class respective folder. The methods presented in Tiling and preprocessing - Sorting should produce this structure for you. 
+
+
+    peripheralTumorDataset/
+    ├── train
+    |    │── 0
+    |    │    ├── tileID_spacing1.tif
+    |    │    ├── tileID_spacing2.tif
+    |    │    ├── tileID_spacing3.tif
+    |    └── 1
+    |         ├── tileID2_spacing42.tif
+    |         ├── ...
+    ├── val
+    |    │── 0
+    |    │    ├── tileID3_spacing1.tif
+    |    │    ├── tileID3_spacing2.tif
+    |    │    ├── tileID3_spacing3.tif
+    |    └── 1
+    |         ├── tileID6_spacing42.tif
+    |         ├── ...
+    ├── test
+         │── 0
+         │    ├── tileID8_spacing6.tif
+         │    ├── tileID8_spacing66.tif
+         │    ├── tileID8_spacing666.tif
+         └── 1
+              ├── tileID123_spacing42.tif
+              ├── ..
+
 
 ### MIL
 Just follow the steps
