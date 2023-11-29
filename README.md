@@ -89,4 +89,4 @@ Contributions are very welcome! Here's how to get involved:
 
 ---
 **Author:** Daniel Rusche <br>
-**Contact:** [daniel.rusche@uni-heidelberg.de](mailto:daniel.rusche@uni-heidelberg.de)
+**Contact:** [daniel.rusche@uni-heidelberg.de](mailto:daniel.rusche@tum.de)
